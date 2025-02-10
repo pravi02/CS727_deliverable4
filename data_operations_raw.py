@@ -200,7 +200,7 @@ def main():
     db = DatabaseManager(db_url)
 
     tables = ["customer", "customer_order", "customer_order_items", "inventory_location", "inventory",
-              "product_category", "supplier", "product", "order_process", "processed_line_items"]
+              "product_category", "supplier", "product", "order_processed", "processed_line_items"]
 
     while True:
         print("\nMenu:")

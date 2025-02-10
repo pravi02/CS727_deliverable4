@@ -17,7 +17,7 @@ class OrderProcess(Base):
 
     # Relationships
     processed_by = relationship("User")
-    customer_order = relationship(CustomerOrder, backref=backref('order_processed', uselist=False), lazy=True)
+    customer_order = relationship(CustomerOrder, backref=backref('processed_order_info', uselist=False), lazy=True)
     # customer_order = relationship("CustomerOrder", back_populates="order_process")
     processed_line_items = relationship("ProcessedLineItems", back_populates="processed_order")
 

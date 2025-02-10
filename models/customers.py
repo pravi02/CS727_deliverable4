@@ -1,13 +1,9 @@
 from datetime import datetime
 
-
 from sqlalchemy import Column, Integer, ForeignKey, UniqueConstraint, String, DateTime
 from sqlalchemy.orm import relationship
 
-
-
 from db import Base
-
 
 class Customer(Base):
     __tablename__ = 'customer'
