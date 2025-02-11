@@ -163,6 +163,7 @@ class DatabaseManager:
 
     def delete_record(self, table):
         if table == "customer":
+            record = None
             record_id = int(input("Enter customer ID: "))
             record = self.session.query(Customer).get(record_id)
         elif table == "customer_order":

@@ -19,7 +19,7 @@ class OrderProcess(Base):
     processed_by = relationship("User")
     customer_order = relationship(CustomerOrder, backref=backref('processed_order_info', uselist=False), lazy=True)
     # customer_order = relationship("CustomerOrder", back_populates="order_process")
-    processed_line_items = relationship("ProcessedLineItems", back_populates="processed_order")
+    processed_line_items = relationship("ProcessedLineItems", back_populates="process_id")
 
     def __repr__(self):
         return f"<OrderProcess(transaction_id={self.transaction_id}, processed_by={self.processed_by_id})>"

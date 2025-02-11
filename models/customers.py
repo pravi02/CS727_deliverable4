@@ -38,6 +38,8 @@ class CustomerOrder(Base):
     def __repr__(self):
         return f"<CustomerOrder(id={self.order_id}, customer={self.customer_id}, date={self.order_date})>"
 
+
+
 class CustomerOrderItems(Base):
     __tablename__ = 'customer_order_items'
 

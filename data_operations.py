@@ -2,10 +2,14 @@ import os
 
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, class_mapper
 from datetime import datetime
-from models import Base, Customer, CustomerOrder, CustomerOrderItems, InventoryLocation, Inventory, ProductCategory, \
-    Supplier, Product, OrderProcess, ProcessedLineItems
+import datetime as dt
+from db import Base
+from models.customers import Customer, CustomerOrder, CustomerOrderItems
+from models.inventory import InventoryLocation, Inventory
+from models.products import ProductCategory, Product, Supplier
+from models.transactions import OrderProcess, ProcessedLineItems
 
 CURRENT_DIR = os.getcwd()
 
@@ -32,16 +36,24 @@ class DBManager:
         elif table == "customer_order":
             customer_order = CustomerOrder(
                 customer_id=int(input("Enter customer ID: ")),
-                order_date=datetime.utcnow()
+                order_date=datetime.now(dt.UTC)
             )
             self.session.add(customer_order)
-        elif table == "customer_order_items":
-            customer_order_items = CustomerOrderItems(
-                customer_order_id=int(input("Enter customer order ID: ")),
-                product_id=int(input("Enter product ID: ")),
-                request_quantity=int(input("Enter request quantity: "))
-            )
-            self.session.add(customer_order_items)
+            self.session.flush()
+            print("Enter line items for customer order.")
+            while True:
+                customer_order_items = CustomerOrderItems(
+                    customer_order_id=customer_order.order_id,
+                    # customer_order_id=int(input("Enter customer order ID: ")),
+                    product_id=int(input("Enter product ID: ")),
+                    request_quantity=int(input("Enter request quantity: "))
+                )
+                self.session.add(customer_order_items)
+                more_items = input("Do you want to add another item? (yes/no): ").strip().lower()
+                if more_items != "yes":
+                    break
+            # customer_order.children.append(customer_order_items)
+
         elif table == "inventory_location":
             inventory_location = InventoryLocation(
                 aisle_number=input("Enter aisle number: "),
@@ -80,7 +92,7 @@ class DBManager:
             self.session.add(product)
         elif table == "order_process":
             order_process = OrderProcess(
-                transaction_date=datetime.utcnow(),
+                transaction_date=datetime.now(dt.UTC),
                 sales_amount=float(input("Enter sales amount: ")),
                 processed_by_id=int(input("Enter processed by ID: ")),
                 customer_order_id=int(input("Enter customer order ID: ")),
@@ -104,38 +116,38 @@ class DBManager:
             print(f"Error inserting record into {table}: {e}")
 
     def read_record(self, table):
-        if table == "customer":
-            records = self.session.query(Customer).all()
-        elif table == "customer_order":
-            records = self.session.query(CustomerOrder).all()
-        elif table == "customer_order_items":
-            records = self.session.query(CustomerOrderItems).all()
-        elif table == "inventory_location":
-            records = self.session.query(InventoryLocation).all()
-        elif table == "inventory":
-            records = self.session.query(Inventory).all()
-        elif table == "product_category":
-            records = self.session.query(ProductCategory).all()
-        elif table == "supplier":
-            records = self.session.query(Supplier).all()
-        elif table == "product":
-            records = self.session.query(Product).all()
-        elif table == "order_process":
-            records = self.session.query(OrderProcess).all()
-        elif table == "processed_line_items":
-            records = self.session.query(ProcessedLineItems).all()
+        records = None
+        if table == "customer": records = self.session.query(Customer).all()
+        elif table == "customer_order": records = self.session.query(CustomerOrder).all()
+        elif table == "customer_order_items": records = self.session.query(CustomerOrderItems).all()
+        # elif table == "inventory_location": records = self.session.query(InventoryLocation).all()
+        elif table == "inventory": records = self.session.query(Inventory).all()
+        elif table == "product_category": records = self.session.query(ProductCategory).all()
+        elif table == "supplier": records = self.session.query(Supplier).all()
+        elif table == "product": records = self.session.query(Product).all()
+        elif table == "order_process": records = self.session.query(OrderProcess).all()
+        # elif table == "processed_line_items": records = self.session.query(ProcessedLineItems).all()
 
         if records:
             print(f"\nContents of the '{table}' table:")
             for record in records:
-                print(record)
+                print({c.key: getattr(record, c.key) for c in class_mapper(record.__class__).columns})
+                if table == 'customer_order':
+                     for item in record.order_items:
+                         print("\t{}".format({c.key: getattr(item, c.key) for c in class_mapper(item.__class__).columns}))
+                elif table == 'order_process':
+                    for item in record.processed_line_items:
+                         print("\t{}".format({c.key: getattr(item, c.key) for c in class_mapper(item.__class__).columns}))
+
+                # print(record)
         else:
             print(f"\nNo records found in the '{table}' table.")
 
     def update_record(self, table):
+        record = None
         if table == "customer":
             record_id = int(input("Enter customer ID: "))
-            record = self.session.query(Customer).get(record_id)
+            record = self.session.get(Customer, record_id)
             if record:
                 record.customer_name = input("Enter new customer name: ")
                 record.customer_location = input("Enter new customer location: ")
@@ -143,20 +155,103 @@ class DBManager:
                 record.customer_telephone = input("Enter new customer telephone: ")
         elif table == "customer_order":
             record_id = int(input("Enter order ID: "))
-            record = self.session.query(CustomerOrder).get(record_id)
+            record = self.session.get(CustomerOrder, record_id)
             if record:
+                print({c.key: getattr(record, c.key) for c in class_mapper(record.__class__).columns})
+                for item in record.order_items:
+                    print("\t{}".format({c.key: getattr(item, c.key) for c in class_mapper(item.__class__).columns}))
+
                 record.customer_id = int(input("Enter new customer ID: "))
-                record.order_date = datetime.utcnow()
+                record.order_date = datetime.now(dt.UTC)
+                self.session.add(record)
+                while True:
+                    line_item = input("Do you want to change the line items? (yes/no): ").strip().lower()
+                    if line_item == "yes":
+                        line_item_id = input("Enter the line item ID: ")
+                        line_item = self.session.query(CustomerOrderItems).filter_by(line_item_id=line_item_id).first()
+                        if line_item:
+                            # customer_order_id=int(input("Enter customer order ID: ")),
+                            line_item.product_id=int(input("Enter product ID: ")),
+                            line_item.request_quantity=int(input("Enter request quantity: "))
+                    else:
+                        break
+        elif table == "product_category":
+            record_id = int(input("Enter product category ID: "))
+            record = self.session.get(ProductCategory, record_id)
+            if record:
+                record.category_name = input("Enter new category name: ")
+            else:
+                print("Product category not found.")
+
+        elif table == "product":
+            record_id = int(input("Enter product ID: "))
+            record = self.session.get(Product, record_id)
+            if record:
+                record.product_name = input("Enter new product name: ")
+                record.product_description = input("Enter new product description: ")
+                record.category_id = int(input("Enter new category ID: "))
+                record.supplier_id = int(input("Enter new supplier ID: "))
+                record.price = float(input("Enter new product price: "))
+            else:
+                print("record not found.")
+
+        elif table == "order_process":
+            record_id = int(input("Enter order process ID: "))
+            record = self.session.get(OrderProcess, record_id)
+            if record:
+                record.order_id = int(input("Enter new order ID: "))
+                record.process_status = input("Enter new process status: ")
+                record.processed_date = datetime.now(dt.timezone.utc)
+            else:
+                print("record not found.")
+
+        elif table == "supplier":
+            record_id = int(input("Enter supplier ID: "))
+            record = self.session.get(Supplier, record_id)
+            if record:
+                record.supplier_name = input("Enter new supplier name: ")
+                record.supplier_contact = input("Enter new supplier contact info: ")
+            else:
+                print("record not found.")
+
+
+        elif table == "processed_line_items":
+            record_id = int(input("Enter processed line item ID: "))
+            record = self.session.get(ProcessedLineItems, record_id)
+            if record:
+                record.process_id = int(input("Enter new process ID: "))
+                record.order_item_id = int(input("Enter new order item ID: "))
+
+
+        # elif table == "customer_order_items":
+        #     record_id = int(input("Enter order item ID: "))
+        #     record = self.session.get(CustomerOrderItems, record_id)
+        #     if record:
+        #         record.order_id = int(input("Enter new order ID: "))
+        #         record.product_id = int(input("Enter new product ID: "))
+        #         record.quantity = int(input("Enter new quantity: "))
+        # elif table == "inventory_location":
+        #     record_id = int(input("Enter location ID: "))
+        #     record = self.session.get(InventoryLocation, record_id)
+        #     if record:
+        #         record.customer_id = int(input("Enter new customer ID: "))
+        #         record.order_date = datetime.now(dt.UTC)
+
+
         # Similar updates for other tables...
 
         try:
-            self.session.commit()
-            print(f"Record updated successfully in {table}.")
+            if record:
+                self.session.commit()
+                print(f"Record updated successfully in {table}.")
+                # print(f"Updated record ID: {record.pk}.")
+                # print({c.key: getattr(record, c.key) for c in class_mapper(record.__class__).columns})
         except Exception as e:
             self.session.rollback()
             print(f"Error updating record in {table}: {e}")
 
     def delete_record(self, table):
+        record = None
         if table == "customer":
             record_id = int(input("Enter customer ID: "))
             record = self.session.query(Customer).get(record_id)
@@ -193,8 +288,8 @@ def main():
     )
     db = DBManager(db_url)
 
-    tables = ["customer", "customer_order", "customer_order_items", "inventory_location", "inventory",
-              "product_category", "supplier", "product", "order_process", "processed_line_items"]
+    tables = ["customer", "customer_order", "inventory", "product",
+              "product_category", "supplier",  "order_process"]
 
     while True:
         print("\nMenu:")
