@@ -1,5 +1,5 @@
 from datetime import datetime
-
+import datetime as dt
 from sqlalchemy import Column, Integer, ForeignKey, UniqueConstraint, String, DateTime
 from sqlalchemy.orm import relationship
 
@@ -29,7 +29,7 @@ class CustomerOrder(Base):
 
     order_id = Column(Integer, primary_key=True, autoincrement=True)
     customer_id = Column(Integer, ForeignKey('customer.customer_id', ondelete="RESTRICT"), nullable=False)
-    order_date = Column(DateTime, default=datetime.utcnow)
+    order_date = Column(DateTime, default=datetime.now(dt.UTC))
 
     # Relationship
     customer = relationship("Customer", back_populates="orders")
