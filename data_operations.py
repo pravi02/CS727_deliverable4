@@ -133,9 +133,6 @@ class DBManager:
                     else:
                         print(f"The customer requested product ID doesn't match with the inventory product with the ID: {inventory_id}")
 
-                    # new_update = input("Do you want to update any other line items? (yes/no): ").strip().lower()
-                    # if new_update != "yes":
-                    #     break
         elif table == "user":
             user = User(
                 username=input("Enter new username: "),
@@ -346,7 +343,9 @@ class DBManager:
             print(f"Invalid table name: {table}")
 
         if record:
-            if record.__table__.name == "order_process" and record.order_processed == True:
+            if (record.__table__.name == "order_process" and record.order_processed == True) \
+                or (record.__table__.name == "customer_order" and record.processed_order_info and \
+                    record.processed_order_info.order_processed == True):
                 print(f"\nThe order has already been processed. Therefore, it is not allowed to remove this record.")
 
             else:
