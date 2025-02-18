@@ -94,9 +94,9 @@ class DBManager:
             customer_order_id = int(input("Enter customer order ID: ")),
             customer_order = self.session.get(CustomerOrder, customer_order_id)
             if not customer_order:
-                raise ValueError("Customer order not found")
+                print("Customer order not found")
             elif customer_order.processed_order_info:
-                raise ValueError("processed info already exists for customer order")
+                print("processed info already exists for customer order")
             else:
                 self.read_records_and_sub_records([customer_order,])
 
@@ -109,36 +109,33 @@ class DBManager:
                 self.session.add(order_process)
                 self.session.flush()
 
-                while True:
-                    line_item_id = input("Enter the Customer Order line item ID: ")
-                    line_item = self.session.query(CustomerOrderItems).filter_by(customer_order_id=customer_order_id,
-                                                                                 line_item_id=line_item_id).first()
-                    if line_item:
-                        inventory_id = int(input("Enter new inventory ID: ")),
-                        # request_quantity = int(input("Enter new allocation quantity: "))
-                        inventory = self.session.get(Inventory, inventory_id)
-                        if inventory:
-                            if line_item.request_quantity<= inventory.available_quantity \
-                                    and inventory.product_id == line_item.product_id:
-                                processed_line_item = ProcessedLineItems(
-                                customer_line_item_id= line_item_id,
-                                process_id_id=order_process.transaction_id,
-                                allocated_quantity = line_item.request_quantity,
-                                inventory_id = inventory_id
-                                )
-                                self.session.add(processed_line_item)
-                                inventory.available_quantity -= line_item.request_quantity
-                                self.session.add(inventory)
-                                # self.session.flush()
-                            else:
-                                raise ValueError(f"Not enough inventory for product ID {inventory.product_id}")
+                for item in customer_order.order_items:
+                    print(f"\nProcessing customer line item ID: {item.line_item_id}")
 
-                        else: print(f"\nNo records found in the 'Inventory' table with the ID: '{inventory_id}'.")
+                    inventory_id = int(input("Enter new inventory ID: ")),
+                    # request_quantity = int(input("Enter new allocation quantity: "))
+                    inventory = self.session.get(Inventory, inventory_id)
+                    processed_line_item = ProcessedLineItems(
+                        customer_line_item_id=item.line_item_id,
+                        process_id_id=order_process.transaction_id,
+                    )
+                    if inventory and inventory.product_id == item.product_id:
+                        if item.request_quantity <= inventory.available_quantity:
+                            processed_line_item.allocated_quantity = item.request_quantity
+                            inventory.available_quantity -= item.request_quantity
+                        else:
+                            processed_line_item.allocated_quantity = inventory.available_quantity
+                            inventory.available_quantity -= 0
+                        processed_line_item.inventory_id = inventory_id
+                        self.session.add(processed_line_item)
+                        self.session.add(inventory)
+                        # self.session.flush()
                     else:
-                        print("Line item not found.")
-                    new_update = input("Do you want to update any other line items? (yes/no): ").strip().lower()
-                    if new_update != "yes":
-                        break
+                        print(f"The customer requested product ID doesn't match with the inventory product with the ID: {inventory_id}")
+
+                    # new_update = input("Do you want to update any other line items? (yes/no): ").strip().lower()
+                    # if new_update != "yes":
+                    #     break
         elif table == "user":
             user = User(
                 username=input("Enter new username: "),
@@ -216,7 +213,7 @@ class DBManager:
                     else:
                         print("Invalid input.")
             else:
-                print(f"\nNo records found in the '{table}' table with the ID: '{record_id}'.")
+                raise ValueError(f"\nNo records found in the '{table}' table with the ID: '{record_id}'.")
         elif table == "inventory":
             record_id = int(input("Enter Inventory ID: "))
             record = self.session.get(Inventory, record_id)
@@ -270,9 +267,12 @@ class DBManager:
             elif record.order_processed:
                 print("Order has already been processed. Hence, edit not allowed.")
             elif record:
+                print("\nCustomer Order Info")
+                self.read_records_and_sub_records([record.customer_order, ])
+                print("\nOrder Process Info")
                 self.read_records_and_sub_records([record,])
                 while True:
-                    line_item_id = input("Enter the line item ID: ")
+                    line_item_id = input("\nEnter the process line item ID: ")
                     line_item = self.session.query(ProcessedLineItems).filter_by(process_id_id=record_id,
                                                                                  line_item_id=line_item_id).first()
                     customer_line_item = self.session.query(CustomerOrderItems).filter_by(line_item_id=\
@@ -289,7 +289,7 @@ class DBManager:
                                 inventory.available_quantity -= request_quantity
                                 self.session.add(inventory)
                             else:
-                                raise ValueError(f"Not enough inventory for product ID {inventory.product_id}")
+                                print(f"Not enough inventory for product ID {inventory.product_id}")
 
                         else: print(f"\nNo records found in the 'Inventory' table with the ID: '{inventory_id}'.")
                     else:
@@ -343,18 +343,22 @@ class DBManager:
         elif table == "user":
             record = self.session.get(User, record_id)
         else:
-            raise ValueError(f"Invalid table name: {table}")
+            print(f"Invalid table name: {table}")
 
         if record:
-            # Ask for user confirmation before deletion
-            confirm = input(
-                f"Are you sure you want to delete this {table.replace('_', ' ')}? (yes/no): ").strip().lower()
-            if confirm == "yes":
-                self.session.delete(record)
-                self.session.commit()
-                print(f"{table.replace('_', ' ').capitalize()} with ID {record_id} deleted successfully.")
+            if record.__table__.name == "order_process" and record.order_processed == True:
+                print(f"\nThe order has already been processed. Therefore, it is not allowed to remove this record.")
+
             else:
-                print("Deletion cancelled.")
+                # Ask for user confirmation before deletion
+                confirm = input(
+                    f"Are you sure you want to delete this {table.replace('_', ' ')}? (yes/no): ").strip().lower()
+                if confirm == "yes":
+                    self.session.delete(record)
+                    self.session.commit()
+                    print(f"{table.replace('_', ' ').capitalize()} with ID {record_id} deleted successfully.")
+                else:
+                    print("Deletion cancelled.")
         else:
             print(f"No {table.replace('_', ' ')} found with ID {record_id}.")
 

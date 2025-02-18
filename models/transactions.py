@@ -11,15 +11,15 @@ class OrderProcess(Base):
     transaction_id = Column(Integer, primary_key=True, autoincrement=True)
     transaction_date = Column(Date, nullable=False)
     sales_amount = Column(Float, nullable=False)
-    processed_by_id = Column(Integer, ForeignKey('user.id', ondelete="SET NULL"), nullable=True)
+    processed_by_id = Column(Integer, ForeignKey('user.id', ondelete="CASCADE"), nullable=True)
     customer_order_id = Column(Integer, ForeignKey('customer_order.order_id', ondelete="CASCADE"), nullable=False, unique=True)
     order_processed = Column(Boolean, default=False)
 
     # Relationships
     processed_by = relationship("User")
-    customer_order = relationship(CustomerOrder, backref=backref('processed_order_info', uselist=False), lazy=True)
+    customer_order = relationship(CustomerOrder, backref=backref('processed_order_info', uselist=False)) #lazy=True
     # customer_order = relationship("CustomerOrder", back_populates="order_process")
-    processed_line_items = relationship("ProcessedLineItems", back_populates="process_id")
+    processed_line_items = relationship("ProcessedLineItems", back_populates="process_id", cascade="all, delete")
 
     def __repr__(self):
         return f"<OrderProcess(transaction_id={self.transaction_id}, processed_by={self.processed_by_id})>"
@@ -36,7 +36,7 @@ class ProcessedLineItems(Base):
     __tablename__ = 'processed_line_items'
 
     line_item_id = Column(Integer, primary_key=True, autoincrement=True)
-    customer_line_item_id = Column(Integer, ForeignKey('customer_order_items.line_item_id', ondelete="RESTRICT"), nullable=False)
+    customer_line_item_id = Column(Integer, ForeignKey('customer_order_items.line_item_id', ondelete="CASCADE"), nullable=False)
     process_id_id = Column(Integer, ForeignKey('order_process.transaction_id', ondelete="CASCADE"), nullable=False)
     inventory_id = Column(Integer, ForeignKey('inventory.inventory_id', ondelete="CASCADE"), nullable=False)
     allocated_quantity = Column(Integer, nullable=False)

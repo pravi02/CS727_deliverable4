@@ -33,19 +33,26 @@ def main_crud_function():
             for i, table in enumerate(tables, 1):
                 print(f"{i}. {table}")
             table_choice = int(input("Enter table number: "))
+            try:
+                if 1 <= table_choice <= len(tables):
+                    selected_table = tables[table_choice - 1]
+                    if choice == '1':
+                        db.create_record(selected_table)
+                    elif choice == '2':
+                        db.read_record(selected_table)
+                    elif choice == '3':
+                        db.update_record(selected_table)
+                    elif choice == '4':
+                        db.delete_record(selected_table)
+                else:
+                    print("Invalid table choice. Please try again.")
+            except Exception as e:
+                print("Something went wrong. Refer error message and try again. \nDetails of Error: \n", str(e))
+                try:
+                    db.session.rollback()
+                except Exception as e:
+                    pass
 
-            if 1 <= table_choice <= len(tables):
-                selected_table = tables[table_choice - 1]
-                if choice == '1':
-                    db.create_record(selected_table)
-                elif choice == '2':
-                    db.read_record(selected_table)
-                elif choice == '3':
-                    db.update_record(selected_table)
-                elif choice == '4':
-                    db.delete_record(selected_table)
-            else:
-                print("Invalid table choice. Please try again.")
         elif choice == '5':
             db.close_connection()
             print("Exiting the application.")
