@@ -132,7 +132,6 @@ class DBManager:
                         # self.session.flush()
                     else:
                         print(f"The customer requested product ID doesn't match with the inventory product with the ID: {inventory_id}")
-
         elif table == "user":
             user = User(
                 username=input("Enter new username: "),
@@ -320,7 +319,7 @@ class DBManager:
 
     def delete_record(self, table):
         record = None
-        record_id = int(input(f"Enter the ID of the {table.replace('_', ' ')} to delete: "))
+        record_id = int(input(f"Enter the {table.replace('_', ' ')} ID to delete: "))
         if table == "customer":
             record = self.session.get(Customer, record_id)
         elif table == "customer_order":
@@ -351,11 +350,15 @@ class DBManager:
             else:
                 # Ask for user confirmation before deletion
                 confirm = input(
-                    f"Are you sure you want to delete this {table.replace('_', ' ')}? (yes/no): ").strip().lower()
+                    f"Are you sure you want to delete this record from {table.replace('_', ' ')}? (yes/no): ").strip().lower()
                 if confirm == "yes":
-                    self.session.delete(record)
-                    self.session.commit()
-                    print(f"{table.replace('_', ' ').capitalize()} with ID {record_id} deleted successfully.")
+                    try:
+                        self.session.delete(record)
+                        self.session.commit()
+                        print(f"{table.replace('_', ' ').capitalize()} with ID {record_id} deleted successfully.")
+                    except Exception as e:
+                        self.session.rollback()
+                        print(f"Error inserting record into {table}: {e}")
                 else:
                     print("Deletion cancelled.")
         else:
