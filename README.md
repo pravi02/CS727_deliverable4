@@ -1,4 +1,4 @@
-#Inventory Management Application
+# Inventory Management Application
 
 This project is a Python-based inventory management application that
 allows users to interact with a MySQL database through a console
@@ -7,7 +7,7 @@ for multiple tables within a schema. The application provides a
 menu-driven interface to manage records across various tables and is
 designed with error handling for enhanced user experience.
 
-**Table of Contents**
+## Table of Contents
 
 -   [Features](#features)
 
@@ -23,24 +23,19 @@ designed with error handling for enhanced user experience.
 
 -   [Example Output](#example-output)
 
-**Features**
+## Features
 
--   **Create Record**: Allows inserting new records into specified
-    tables, ensuring the necessary constraints are met.
+-   **Create Record**: Allows inserting new records into specified tables, ensuring the necessary constraints are met.
 
--   **Read Record**: Retrieves and displays all records from the
-    selected table.
+-   **Read Record**: Retrieves and displays all records from the selected table.
 
--   **Update Record**: Modifies existing records in the database using
-    primary key(s) for identification.
+-   **Update Record**: Modifies existing records in the database using primary key(s) for identification.
 
--   **Delete Record**: Deletes specific records from a table based on
-    primary key(s).
+-   **Delete Record**: Deletes specific records from a table based on primary key(s).
 
--   **Error Handling**: Includes error handling for invalid options,
-    database connection issues, and constraint violations.
+-   **Error Handling**: Includes error handling for invalid options, database connection issues, and constraint violations.
 
-**Supported Tables**
+## Supported Tables
 
 The application supports the following tables:
 
@@ -64,12 +59,11 @@ The application supports the following tables:
 
 8.  User
 
-These tables are managed using primary keys, and relationships between
-them are enforced by the application logic.
+These tables are managed using primary keys, and relationships between them are enforced by the application logic.
 
-**Setup Instructions**
+## Setup Instructions
 
-**Prerequisites**
+### Prerequisites
 
 -   Python 3.x installed on your system.
 
@@ -78,32 +72,32 @@ them are enforced by the application logic.
 -   MySQL Connector for Python (pymsql, sqlalchemy, python-dotenv
     package).
 
-**Installation**
+### Installation
 
 1.  Clone or download this repository to your local machine.
 
 2.  Install the MySQL connector package if not already installed:
-
+```bash
 pip install pymysql sqlalchemy python-dotenv
-
+```
 3.  Update the database connection credentials in the .env file with the
     parameters below:
-
-DATABASE_USER=\
-DATABASE_PASSWORD=\
-DATABASE_NAME=\
-DATABASE_HOST=\
+```bash
+DATABASE_USER=
+DATABASE_PASSWORD=
+DATABASE_NAME=
+DATABASE_HOST=
 DATABASE_PORT=
-
+```
 The database schema and the required tables and relationships will be
 auto created if it does not exist at first run.
 
-**Usage**
+## Usage
 
 1.  **Run the application**:
-
+```bash
 python run.py
-
+```
 2.  **Menu Options**:
 
 -   The application will display a menu with five options:
@@ -139,7 +133,7 @@ python run.py
 -   To exit the application, select option 5. The application will close
     the database connection.
 
-**Error Handling**
+## Error Handling
 
 -   **Database Connection**: If the application fails to connect to the
     MySQL database, it displays an error message and exits gracefully.
@@ -163,9 +157,9 @@ python run.py
     logic while updating or deleting records (EX: if customer order
     already processed then it will not let you update or delete)
 
-**Code Structure**
+## Code Structure
 
-**DBManager Class**
+### DBManager Class
 
 This class is responsible for handling all database interactions and
 operations. It contains the following methods:
@@ -190,7 +184,7 @@ operations. It contains the following methods:
 -   close_connection: Closes the database connection when the
     application exits.
 
-**main_crud_function Function**
+### main_crud_function Function
 
 This function manages the application flow:
 
@@ -201,7 +195,7 @@ This function manages the application flow:
 -   Calls the appropriate methods from the DBManager class based on the
     user's choice.
 
-**Example Output**
+### Example Output
 
 Here\'s a screenshot of the application running:
 
@@ -209,104 +203,70 @@ Here\'s a screenshot of the application running:
 
     -   Create record python :
 
-![A screenshot of a computer program AI-generated content may be
-incorrect.](screenshots/image1.png){width="6.5in"
-height="6.093055555555556in"}
+>![Inventory Management System - Example Output](screenshots/image1.png)
 
 -   Create record sql :
 
-> ![A table of names and numbers AI-generated content may be
-> incorrect.](screenshots/image2.png){width="4.595608048993876in"
-> height="5.200018591426072in"}
+> ![Inventory Management System - Example Output](screenshots/image2.png)
 
 -   **Read Record**
 
     -   Read record python :
 
-> ![A screen shot of a computer screen AI-generated content may be
-> incorrect.](screenshots/image3.png){width="5.650943788276465in"
-> height="3.2839260717410323in"}
+> ![Inventory Management System - Example Output](screenshots/image3.png)
 
 -   Read record sql :
 
-> ![A screenshot of a computer AI-generated content may be
-> incorrect.](screenshots/image4.png){width="6.5in"
-> height="4.404166666666667in"}
+> ![Inventory Management System - Example Output](screenshots/image4.png)
 
 -   **Update Record**
 
     -   Update record python :
 
-![A screenshot of a computer program AI-generated content may be
-incorrect.](screenshots/image5.png){width="4.1012237532808395in"
-height="5.359932195975503in"}
+> ![Inventory Management System - Example Output](screenshots/image5.png)
 
 -   Update record sql :
 
     -   Before:
 
-![A table with numbers and numbers on it AI-generated content may be
-incorrect.](screenshots/image6.png){width="3.6663681102362204in"
-height="4.470367454068241in"}
+> ![Inventory Management System - Example Output](screenshots/image6.png)
 
 -   After:
 
-![A table with numbers and numbers AI-generated content may be
-incorrect.](screenshots/image7.png){width="3.395300743657043in"
-height="4.398698600174978in"}
+> ![Inventory Management System - Example Output](screenshots/image7.png)
 
 -   **Delete Record**
 
     -   Delete record python:
 
-![A screenshot of a computer program AI-generated content may be
-incorrect.](screenshots/image8.png){width="5.6859405074365705in"
-height="4.248053368328959in"}
+>![Inventory Management System - Example Output](screenshots/image8.png)
 
 -   Delete record sql:
 
     -   Before:
 
-![Database Manager Application - Example
-Output](screenshots/image9.jpeg){width="5.34375in"
-height="3.9375in"}
+>![Inventory Management System - Example Output](screenshots/image9.jpeg)
 
-![A table with numbers and numbers AI-generated content may be
-incorrect.](screenshots/image10.png){width="3.135025153105862in"
-height="4.895220909886264in"}
+>![Inventory Management System - Example Output](screenshots/image10.png)
 
-![A screenshot of a computer AI-generated content may be
-incorrect.](screenshots/image11.png){width="6.5in"
-height="0.9131944444444444in"}
+>![Database Manager Application - Example Output](screenshots/image11.png)
 
 -   After:
 
-![Database Manager Application - Example
-Output](screenshots/image12.jpeg){width="5.479166666666667in"
-height="4.15625in"}
+>![Database Manager Application - Example Output](screenshots/image12.jpeg)
 
-![A table with numbers and numbers AI-generated content may be
-incorrect.](screenshots/image13.png){width="3.209630358705162in"
-height="4.564344925634296in"}
+![Database Manager Application - Example Output](screenshots/image13.png)
 
 -   **Error Handling**
 
 -   Case 1:
 
-![Database Manager Application - Example
-Output](screenshots/image14.jpeg){width="6.5in"
-height="1.9333333333333333in"}
+![Database Manager Application - Example Output](screenshots/image14.jpeg)
 
-![A screenshot of a computer program AI-generated content may be
-incorrect.](screenshots/image15.png){width="3.501415135608049in"
-height="2.1258595800524933in"}
+![Database Manager Application - Example Output](screenshots/image15.png)
 
 -   Case 2:
 
-![Database Manager Application - Example
-Output](screenshots/image16.jpeg){width="6.5in"
-height="6.263888888888889in"}
+![Database Manager Application - Example Output](screenshots/image16.jpeg)
 
-![A screenshot of a computer program AI-generated content may be
-incorrect.](screenshots/image17.png){width="3.3555227471566056in"
-height="5.345910979877515in"}
+![Database Manager Application - Example Output](screenshots/image17.png)
