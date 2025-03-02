@@ -89,8 +89,7 @@ DATABASE_NAME=
 DATABASE_HOST=
 DATABASE_PORT=
 ```
-The database schema and the required tables and relationships will be
-auto created if it does not exist at first run.
+The database schema - the required tables and relationships will be auto-created if it does not exist in the first run.
 
 ## Usage
 
@@ -122,8 +121,7 @@ python run.py
 
 -   Read: Select a table to view all its records.
 
--   Update: Choose the table, specify the primary key(s), and update the
-    desired column\'s value.
+-   Update: Choose the table, specify the primary key(s), and update the values.
 
 -   Delete: Choose the table and provide the primary key(s) to delete
     the record.
